@@ -39,10 +39,11 @@ class Validate:
                 return {"error": "Field {} should be {}".format(key, config['keys'][key][type])}
 
         for key in config['keys']:
-            if (config['keys'][key]['is_optional'] == False) and (key not in request.keys() ):
+            if (config['keys'][key]['is_optional'] is False) and (key not in request.keys()):
                 return {"error": "Field {} should be present in request".format(key)}
 
         return {"status": "success"}
+
 
 def check_result():
     pass
