@@ -1,4 +1,4 @@
-import validate_v1
+import validate_v1 as validator
 import unittest
 
 
@@ -6,7 +6,7 @@ class ValidateTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.validator = validate_v1.Validate()
+        cls.validator = validator.Validate()
 
         cls.correct_config_allow_extended = {
             "keys": {
