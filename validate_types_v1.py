@@ -1,10 +1,4 @@
 class ValidateTypes:
-    # def __init__(self):
-    #     self.mapping = {
-    #         "int": "check_int",
-    #         "str": "check_string",
-    #         "bool": "check_bool"
-    #     }
 
     mapping = {
         "int": "check_int",
