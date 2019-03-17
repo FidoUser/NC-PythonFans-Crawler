@@ -72,7 +72,7 @@ class ValidateTest(unittest.TestCase):
 
     def test_validator_correct_config_disable_extended____request_more_extended(self):
         self.assertEqual(self.validator.check(self.correct_config_disable_extended, self.request_more_extended),
-                         {'error': 'Field var11 not allowed in reequest'})
+                         {'error': 'Field var11 not allowed in request'})
 
     def test_validator_correct_config_allow_extended____request_not_present_all_mandatoty_vars(self):
         self.assertEqual(self.validator.check(self.correct_config_allow_extended,

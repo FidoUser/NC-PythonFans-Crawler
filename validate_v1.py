@@ -10,7 +10,7 @@ class Validate:
                 if config['allow_extended']:
                     continue
                 else:
-                    return {"error": "Field {} not allowed in reequest".format(key)}
+                    return {"error": "Field {} not allowed in request".format(key)}
             if config['keys'][key][type] not in validate_types.ValidateTypes.mapping.keys():
                 return {"error": "Unknown type of field {} in config".format(key)}
 
