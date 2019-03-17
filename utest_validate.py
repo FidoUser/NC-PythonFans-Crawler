@@ -78,6 +78,9 @@ class ValidateTest(unittest.TestCase):
         self.assertEqual(self.validator.check(self.correct_config_allow_extended,
                                               self.request_not_present_all_mandatoty_vars),
                          {'error': 'Field var4 should be present in request'})
+        self.subTest(self.assertEqual(self.validator.check(self.correct_config_allow_extended,
+                                              self.request_not_present_all_mandatoty_vars),
+                         {'error': 'Field var4 should be present in request'}))
 
 
 if __name__ == '__main__':

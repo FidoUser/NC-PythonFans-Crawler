@@ -1,9 +1,10 @@
 class Validate:
-    mapping = {
-        "int": "check_int",
-        "str": "check_string",
-        "bool": "check_bool"
-    }
+    def __init__(self):
+        self.mapping = {
+            "int": "check_int",
+            "str": "check_string",
+            "bool": "check_bool"
+        }
 
     @staticmethod
     def check_int(value):
