@@ -3,7 +3,8 @@ class ValidateTypes:
     mapping = {
         "int": "check_int",
         "str": "check_string",
-        "bool": "check_bool"
+        "bool": "check_bool",
+        "list": "check_list"
     }
 
     @staticmethod
@@ -29,4 +30,3 @@ class ValidateTypes:
         if type(value) is list:
             return True
         return False
-
