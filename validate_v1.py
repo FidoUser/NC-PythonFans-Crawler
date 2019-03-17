@@ -1,28 +1,30 @@
+import validate_types_v1 as validate_types
+
 class Validate:
-    def __init__(self):
-        self.mapping = {
-            "int": "check_int",
-            "str": "check_string",
-            "bool": "check_bool"
-        }
+    # def __init__(self):
+    #     self.mapping = {
+    #         "int": "check_int",
+    #         "str": "check_string",
+    #         "bool": "check_bool"
+    #     }
 
-    @staticmethod
-    def check_int(value):
-        if type(value) is int:
-            return True
-        return False
-
-    @staticmethod
-    def check_string(value):
-        if type(value) is str:
-            return True
-        return False
-
-    @staticmethod
-    def check_bool(value):
-        if type(value) is bool:
-            return True
-        return False
+    # @staticmethod
+    # def check_int(value):
+    #     if type(value) is int:
+    #         return True
+    #     return False
+    #
+    # @staticmethod
+    # def check_string(value):
+    #     if type(value) is str:
+    #         return True
+    #     return False
+    #
+    # @staticmethod
+    # def check_bool(value):
+    #     if type(value) is bool:
+    #         return True
+    #     return False
 
     def check(self, config, request):
         for key, value in request.items():
@@ -31,10 +33,10 @@ class Validate:
                     continue
                 else:
                     return {"error": "Field {} not allowed in reequest".format(key)}
-            if config['keys'][key][type] not in self.mapping.keys():
+            if config['keys'][key][type] not in validate_types.ValidateTypes.mapping.keys():
                 return {"error": "Unknown type of field {} in config".format(key)}
 
-            func = getattr(self, self.mapping[config['keys'][key][type]])
+            func = getattr(validate_types.ValidateTypes, validate_types.ValidateTypes.mapping[config['keys'][key][type]])
 
             if func(value) is False:
                 return {"error": "Field {} should be {}".format(key, config['keys'][key][type])}
