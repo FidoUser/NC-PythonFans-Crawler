@@ -3,9 +3,9 @@ import validate_types_v1 as validate_types
 
 class Validate:
 
-    @staticmethod
-    def check(config, request):
-        for key, value in request.items():
+
+    def check_keys(self, keys,config_keys,allow_extended):
+        for key, value in keys.items():
             if key not in config['keys'].keys():
                 if config['allow_extended']:
                     continue
@@ -20,8 +20,28 @@ class Validate:
             if func(value) is False:
                 return {"error": "Field {} should be {}".format(key, config['keys'][key][type])}
 
+
+    @staticmethod
+    def check(config, request):
+        # for key, value in request.items():
+        #     if key not in config['keys'].keys():
+        #         if config['allow_extended']:
+        #             continue
+        #         else:
+        #             return {"error": "Field {} not allowed in request".format(key)}
+        #     if config['keys'][key][type] not in validate_types.ValidateTypes.mapping.keys():
+        #         return {"error": "Unknown type of field {} in config".format(key)}
+        #
+        #     func = getattr(validate_types.ValidateTypes,
+        #                    validate_types.ValidateTypes.mapping[config['keys'][key][type]])
+        #
+        #     if func(value) is False:
+        #         return {"error": "Field {} should be {}".format(key, config['keys'][key][type])}
+
+        self.check_keys(request.items(), config['keys'], config['allow_extended'])
         for key in config['keys']:
             if (config['keys'][key]['is_optional'] is False) and (key not in request.keys()):
                 return {"error": "Field {} should be present in request".format(key)}
 
         return {"status": "success"}
+
