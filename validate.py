@@ -1,10 +1,10 @@
-import validate_types as validate_types
+import validate_types
 
 
 class Validate:
 
 
-    def check_keys(self, keys,config_keys,allow_extended):
+    def check_keys(self, keys, config):
         for key, value in keys.items():
             if key not in config['keys'].keys():
                 if config['allow_extended']:
@@ -21,8 +21,8 @@ class Validate:
                 return {"error": "Field {} should be {}".format(key, config['keys'][key][type])}
 
 
-    @staticmethod
-    def check(config, request):
+    # @staticmethod
+    def check(self, config, request):
         # for key, value in request.items():
         #     if key not in config['keys'].keys():
         #         if config['allow_extended']:
@@ -38,7 +38,9 @@ class Validate:
         #     if func(value) is False:
         #         return {"error": "Field {} should be {}".format(key, config['keys'][key][type])}
 
-        self.check_keys(request.items(), config['keys'], config['allow_extended'])
+        res = self.check_keys(request, config)
+        if res != None:
+            return res
         for key in config['keys']:
             if (config['keys'][key]['is_optional'] is False) and (key not in request.keys()):
                 return {"error": "Field {} should be present in request".format(key)}
