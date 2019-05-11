@@ -17,6 +17,7 @@ def callback(ch, method, properties, body):
     print(" [x] Done")
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
+pass
 
 channel.basic_qos(prefetch_count=65535)
 channel.basic_consume(queue='task_queue', on_message_callback=callback)

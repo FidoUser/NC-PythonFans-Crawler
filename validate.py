@@ -1,4 +1,4 @@
-import validate_types_v1 as validate_types
+import validate_types as validate_types
 
 
 class Validate:

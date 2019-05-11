@@ -1,4 +1,4 @@
-import validate_v1 as validator
+import validate as validator
 import unittest
 
 

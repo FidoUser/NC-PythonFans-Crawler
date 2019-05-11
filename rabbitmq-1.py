@@ -2,6 +2,7 @@
 import pika
 import time
 import datetime
+import json
 
 rabbitmq_cfg = {'login':'guest', 'password':'guest', 'host': 'docker.nslookup.pp.ua',
                 'port': 5672}
@@ -100,6 +101,7 @@ z.connect()
 # z.publish(body='111111',queue='aaa')
 for i in range(100):
     z.publish(queue='hello',body=str(i) + '==' + datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S'))
+    z.publish(queue='hello',body=json.dumps(rabbitmq_cfg))
     # z.publish(body='zzz')
 # print(z)
 # del z
@@ -110,6 +112,6 @@ pass
 # z.channel.start_consuming()
 
 
-while True:
-    z.publish(queue='hello',body='test')
+# while True:
+#     z.publish(queue='hello',body='test')
 
