@@ -1,4 +1,5 @@
 import validate as validator
+import validate_types
 import unittest
 
 
@@ -81,6 +82,15 @@ class ValidateTest(unittest.TestCase):
         self.subTest(self.assertEqual(self.validator.check(self.correct_config_allow_extended,
                                               self.request_not_present_all_mandatoty_vars),
                          {'error': 'Field var4 should be present in request'}))
+
+    def test_validator_correct_url(self):
+        checks_ok = ['http://i.ua','http://google.com.ua/']
+        checks_error = ['h1ttp://i.ua','http:google.com.ua/']
+        for url in checks_ok:
+            self.subTest(self.assertTrue(validate_types.ValidateTypes.check_url(url)))
+        for url in checks_error:
+            self.subTest(self.assertIsNot(validate_types.ValidateTypes.check_url(url),True))
+
 
 
 if __name__ == '__main__':

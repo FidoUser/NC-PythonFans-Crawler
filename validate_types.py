@@ -1,4 +1,7 @@
+import validators
+
 class ValidateTypes:
+
 
     mapping = {
         "int": "check_int",
@@ -28,5 +31,11 @@ class ValidateTypes:
     @staticmethod
     def check_list(value):
         if type(value) is list:
+            return True
+        return False
+
+    @staticmethod
+    def check_url(value):
+        if validators.url(value) is True:
             return True
         return False
