@@ -21,6 +21,7 @@ rabbit = dict(
 worker = dict(
     request_ConnectTimeout = 500, #ms
     request_ReadTimeout = 10, #sec
+    https_port = 443
 )
 
 

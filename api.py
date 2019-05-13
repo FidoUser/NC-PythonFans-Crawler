@@ -94,6 +94,10 @@ class Api:
         self.db  = db.DB(db_path, db_name)
         self.rabbit = rabbitMQ.RabbitMQ(host=cfg.rabbit['docker_host'])
         self.rabbit.connect()
+        self.rabbit.channel.queue_declare(queue=cfg.rabbit['queue_ssl'])
+        self.rabbit.channel.queue_declare(queue=cfg.rabbit['queue_robots_txt'])
+
+
         # self.rabbit.publish(queue='hello',body='+++==' + datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S'))
 
     def get_domain_from_url(self,url):

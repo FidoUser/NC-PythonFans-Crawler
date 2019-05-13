@@ -45,7 +45,8 @@ sql_init_structure = """
 	"job_id"	INTEGER,
 	"domain"	TEXT,
 	"result_codes"	TEXT,
-	"value"	TEXT,
+	"cert"	TEXT,
+	"cert_raw"	TEXT,
 	"last_update"  DATE,
 	"in_queue"	INTEGER 
     );
@@ -172,6 +173,34 @@ class DB:
             print(sql)
             return False
 
+
+    def cert_set_responce(self, domain, cert_raw, cert_decode):
+        try:
+            sql = """INSERT OR REPLACE INTO ssl (id, job_id, domain, in_queue, last_update) VALUES 
+                    ((SELECT id from robots_txt WHERE domain="{}"),
+                    (SELECT job_id from robots_txt WHERE domain="{}"),
+                    "{}",0, -=-datetime-=- ); 
+                  """.format(domain, domain, domain)\
+                      .replace("-=-datetime-=-", datetime_msg['datetime'])
+            self.conn.execute(sql)
+            self.conn.commit()
+
+            sql = """UPDATE ssl SET cert_raw="-=-value-=-" WHERE domain="{}" 
+                  """.format(domain)\
+                      .replace("-=-value-=-", cert_raw.replace('"','""'))
+            self.conn.execute(sql)
+            self.conn.commit()
+
+            sql = """UPDATE ssl SET cert_decode="-=-value-=-" WHERE domain="{}" 
+                  """.format(domain)\
+                      .replace("-=-value-=-", cert_decode.replace('"','""'))
+            self.conn.execute(sql)
+            self.conn.commit()
+
+        except Exception as error:
+            print('error in cert_set_responce = ' + error)
+            print(sql)
+            return False
 
 
     def add_ssl(self, domain, force_update=False, job_id=-1):
