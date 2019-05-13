@@ -11,3 +11,23 @@ db = dict(
     project_name='PythonFans-crawler',
     # db_version = '0.0.1'
 )
+
+rabbit = dict(
+    docker_host='docker.nslookup.pp.ua',
+    queue_robots_txt = 'robots.txt',
+    queue_ssl = 'ssl',
+)
+
+worker = dict(
+    request_ConnectTimeout = 500, #ms
+    request_ReadTimeout = 10, #sec
+)
+
+
+request = {
+    'URLs': {'https://i.ua', 'https://zz.co ', 'https://www.namecheap.com'},  #mandatory
+    'max_ConnectTimeout': 500, #optional, by default = 300 ms (ConnectTimeout)
+    'max_ReadTimeout': 10, #optional, by default = 10 sec
+    'max_exetute_time': 3600,  #optional, by default = 0 s = not restricted
+    'max_depth': 4, #optional, by default = 4 s = not restricted
+}

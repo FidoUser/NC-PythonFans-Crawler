@@ -2,7 +2,10 @@ import validators #publick class
 import validate_types #my
 # import random
 import db
+import rabbitMQ
 import config as cfg
+import datetime
+import json
 
 def description():
     pass
@@ -78,24 +81,55 @@ def description():
     # }
 
 request = {
-    'URLs': {'https://i.ua', 'https://zz.co '},  #mandatory
-    'max_time_for_url_retrive': 500, #optional, by default = 300 ms
+    'URLs': {'https://i.ua', 'https://zz.co ', 'https://www.namecheap.com'},  #mandatory
+    'max_time_for_url_retrive': 0.500, #optional, by default = 300 ms (ConnectTimeout)
+    'max_ReadTimeout': 10, #optional, by default = 10 sec
     'max_exetute_time': 3600,  #optional, by default = 0 s = not restricted
     'max_depth': 4, #optional, by default = 4 s = not restricted
 }
 
 class Api:
 
-    def __init__(self, URLs):
+    def __init__(self, db_path='.', db_name='db.sqlite'):
+        self.db  = db.DB(db_path, db_name)
+        self.rabbit = rabbitMQ.RabbitMQ(host=cfg.rabbit['docker_host'])
+        self.rabbit.connect()
+        # self.rabbit.publish(queue='hello',body='+++==' + datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S'))
+
+    def get_domain_from_url(self,url):
+        try:
+            return url.split("//")[-1].split("/")[0]
+        except:
+            return False
+
+    def add_URLs(self, URLs, max_depth = 1):
         # self.job_ID = get from DB
+
+        j_uuid  = self.db.add_job(len(URLs))
+        j_id = self.db.get_job_id_from_uuid(j_uuid)
         for url in URLs:
             if validators.url(url):
-                print(url)
+                # print(url)
+                message = dict(domain=self.get_domain_from_url(url),
+                               ConnectTimeout = request['max_time_for_url_retrive'] or cfg.request['max_ConnectTimeout'],
+                               ReadTimeout = request['max_ReadTimeout'] or cfg.request['max_ReadTimeout']
+                               )
+                message = json.dumps(message)
+
+                self.db.add_robots_txt(domain=self.get_domain_from_url(url), job_id=j_id)
+                self.rabbit.publish(queue=cfg.rabbit['queue_robots_txt'],body=message)
+
+                self.db.add_ssl(domain=self.get_domain_from_url(url), job_id=j_id)
+                self.rabbit.publish(queue=cfg.rabbit['queue_ssl'],body=message)
             else:
                 print('error URL ="{}"'.format(url))
-        self.db  = db.DB(cfg.db['db_path'],cfg.db['db_name'])
-        j_uuid  = self.db.db_add_job(len(URLs))
+
         print(j_uuid)
+        print(j_id)
 
 
-Api(URLs=request['URLs'])
+
+api = Api(cfg.db['db_path'],cfg.db['db_name'])
+api.add_URLs(URLs=request['URLs'], max_depth=request['max_depth'])
+
+
