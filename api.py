@@ -7,6 +7,9 @@ import config as cfg
 import datetime
 import json
 
+from flask import Flask, request
+
+app = Flask(__name__)
 def description():
     pass
     # получить список сайтов
@@ -80,7 +83,7 @@ def description():
     #         }
     # }
 
-request = {
+request1 = {
     'URLs': {'https://i.ua', 'https://zz.co ', 'https://www.namecheap.com'},  #mandatory
     'max_time_for_url_retrive': 0.500, #optional, by default = 300 ms (ConnectTimeout)
     'max_ReadTimeout': 10, #optional, by default = 10 sec
@@ -106,7 +109,7 @@ class Api:
         except:
             return False
 
-    def add_URLs(self, URLs, max_depth = 1):
+    def add_URLs(self, URLs, max_depth = 1, max_time_for_url_retrive = 0.5, max_ReadTimeout =10 ):
         # self.job_ID = get from DB
 
         j_uuid  = self.db.add_job(len(URLs))
@@ -115,8 +118,8 @@ class Api:
             if validators.url(url):
                 # print(url)
                 message = dict(domain=self.get_domain_from_url(url),
-                               ConnectTimeout = request['max_time_for_url_retrive'] or cfg.request['max_ConnectTimeout'],
-                               ReadTimeout = request['max_ReadTimeout'] or cfg.request['max_ReadTimeout']
+                               # ConnectTimeout = request1['max_time_for_url_retrive'] or cfg.request['max_ConnectTimeout'],
+                               # ReadTimeout = request1['max_ReadTimeout'] or cfg.request['max_ReadTimeout']
                                )
                 message = json.dumps(message)
 
@@ -125,15 +128,96 @@ class Api:
 
                 self.db.add_ssl(domain=self.get_domain_from_url(url), job_id=j_id)
                 self.rabbit.publish(queue=cfg.rabbit['queue_ssl'],body=message)
+
+                self.db.add_url(URL=url, job_id=j_id, depth=1, max_depth =request1['max_depth'])
+                self.rabbit.publish(queue=cfg.rabbit['queue_urls'],body=message)
+
+
             else:
                 print('error URL ="{}"'.format(url))
 
         print(j_uuid)
         print(j_id)
 
+@app.route('/debug', methods = ['GET', 'POST'])
+def flask_debug_api():
+    html ="""
+        
+        <html>
+            <head>
+            </head>
+            <body>
+                <script>
+                    function send_data(){
+                        // Sending and receiving data in JSON format using POST method
+                        //
+                        var xhr = new XMLHttpRequest();
+                        var url = "/api/request";
+                        xhr.open("POST", url, true);
+                        xhr.setRequestHeader("Content-Type", "application/json");
+                        xhr.onreadystatechange = function () {
+                            if (xhr.readyState === 4 && xhr.status === 200) {
+                                var json = JSON.parse(xhr.responseText);
+                                console.log(json.email + ", " + json.password);
+                            }
+                        };
+                        var data = JSON.stringify({
+                            'URLs': ['https://i.ua ', 'https://zz.co ', 'https://www.namecheap.com/', 'https://google.com.ua '],  // mandatory
+                            'max_time_for_url_retrive': 0.500, // optional, by default = 300 ms (ConnectTimeout)
+                            'max_ReadTimeout': 10, // optional, by default = 10 sec
+                            'max_exetute_time': 3600,  // optional, by default = 0 s = not restricted
+                            'max_depth': 4, // optional, by default = 4 s = not restricted
+                        });
+                        xhr.send(data);
+                    }
+        
+                    function rabbit_delete_all_queues_items(){
+                        // Sending and receiving data in JSON format using POST method
+                        //
+                        var xhr = new XMLHttpRequest();
+                        var url = "/api/action/rabbit_delete_all_queues_items";
+                        xhr.open("POST", url, true);
+                        xhr.setRequestHeader("Content-Type", "application/json");
+                        xhr.onreadystatechange = function () {
+                            if (xhr.readyState === 4 && xhr.status === 200) {
+                                var json = JSON.parse(xhr.responseText);
+                                console.log(json.email + ", " + json.password);
+                            }
+                        };
+                        // var data = JSON.stringify({});                
+                        xhr.send();
+                    }
+        
+                </script>
+                <form>
+                    <button type="button" onclick="send_data()">send_data</button>
+                    <button type="button" onclick="rabbit_delete_all_queues_items()">rabbit_delete_all_queues_items</button>
+                </form>
+            </body>
+        </html>    
+                
+    """
+    return html
+
+@app.route('/api/action/<action>', methods=['GET', 'POST'])
+def flask_actions(action):
+    if action == 'rabbit_delete_all_queues_items':
+        for queue in [cfg.rabbit[q] for q in cfg.rabbit.keys() if q.startswith('queue_')]:
+            api.rabbit.purge_queue(queue)
+    return "{}"
+
+@app.route('/api/request', methods=['GET','POST'])
+def flask_request_put():
+    print(request.json)
+    api.add_URLs(URLs=request.json['URLs'], max_depth=request.json['max_depth'])
+    return "{}"
 
 
 api = Api(cfg.db['db_path'],cfg.db['db_name'])
-api.add_URLs(URLs=request['URLs'], max_depth=request['max_depth'])
+api.add_URLs(URLs=request1['URLs'], max_depth=request1['max_depth'])
 
 
+
+
+if __name__ == '__main__':
+    app.run(debug=True)

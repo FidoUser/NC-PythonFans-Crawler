@@ -16,6 +16,7 @@ rabbit = dict(
     docker_host='docker.nslookup.pp.ua',
     queue_robots_txt = 'robots.txt',
     queue_ssl = 'ssl',
+    queue_urls = 'URLs',
 )
 
 worker = dict(

@@ -48,6 +48,12 @@ class RabbitMQ():
     def callback(ch, method, properties, body):
         print(" [x] Received %r" % body)
 
+    def purge_queue(self, queue):
+        self.channel.queue_purge(queue=queue)
+
+    def delete_queue(self,queue):
+        self.channel.queue_delete(queue=queue)
+
 
 
 

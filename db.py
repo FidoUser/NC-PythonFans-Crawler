@@ -2,6 +2,8 @@ import os
 import sqlite3
 import uuid
 import config as cfg
+import inspect
+import sys
 
 # config = dict(db_path=os.path.join('.','db'),
 #               db_name = 'crawler.sqlite',
@@ -49,6 +51,19 @@ sql_init_structure = """
 	"cert_raw"	TEXT,
 	"last_update"  DATE,
 	"in_queue"	INTEGER 
+    );
+    
+    CREATE TABLE "URLs" (
+	"Id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+	"job_id"	INTEGER,
+	"domain"	TEXT,
+	"url"	TEXT,
+	"depth"	INTEGER,
+	"max_depth"	INTEGER,
+	"result_code"	TEXT,
+	"html"	TEXT,
+	"last_update"	DATE,
+	"in_queue"	INTEGER
     );
 """.replace('-=-datetime-=-', datetime_msg['strftime'])
 
@@ -119,8 +134,8 @@ class DB:
             self.conn.execute("INSERT INTO jobs (URLs, uuid) VALUES (?,?);", (URLs_count, job_uuid))
             self.conn.commit()
             return job_uuid
-        except:
-            return False
+        except Exception as e:
+            return False, inspect.stack()[0][3], inspect.currentframe().f_code.co_name, sys._getframe().f_code.co_name, e
 
     def __delete__(self, instance):
         self.conn.commit()
@@ -133,8 +148,8 @@ class DB:
             res = self.conn.execute(sql)
             for row in res:
                 return row[0]
-        except:
-            return False
+        except Exception as e:
+            return False, inspect.stack()[0][3], inspect.currentframe().f_code.co_name, sys._getframe().f_code.co_name, e
 
     def add_robots_txt(self, domain, force_update=False, job_id=-1):
         try:
@@ -213,6 +228,17 @@ class DB:
             sql = """INSERT OR REPLACE INTO ssl (id, job_id, domain, in_queue) VALUES 
                     ((SELECT id from ssl WHERE domain="{}"),{},"{}",1); 
                   """.format(domain,job_id,domain)
+            self.conn.execute(sql)
+            self.conn.commit()
+        except:
+            return False
+
+
+    def add_url(self, URL, job_id=-1, depth=1, max_depth=1):
+        try:
+            sql = """INSERT INTO URLs (job_id, url, depth, max_depth, in_queue) VALUES 
+                    ("{}", "{}",{},{}, 1); 
+                  """.format(job_id, URL, depth, max_depth)
             self.conn.execute(sql)
             self.conn.commit()
         except:
